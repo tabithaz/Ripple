@@ -1,3 +1,4 @@
+import math
 import unittest
 from app import simulate
 
@@ -9,6 +10,15 @@ class SimulationTests(unittest.TestCase):
     def test_invalid_inputs(self):
         with self.assertRaises(ValueError):
             simulate(customers=-1)
+    def test_nonfinite_inputs(self):
+        for parameter in ('customers', 'price', 'price_change', 'churn', 'churn_sensitivity', 'costs'):
+            for value in (math.nan, math.inf, -math.inf):
+                with self.subTest(parameter=parameter, value=value), self.assertRaises(ValueError):
+                    simulate(**{parameter: value})
+    def test_customer_count_must_be_integer(self):
+        for value in (1.5, True, '100'):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                simulate(customers=value)
     def test_full_churn(self):
         self.assertEqual(simulate(churn=1)['monthly_revenue'], 0)
 
