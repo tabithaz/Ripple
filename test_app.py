@@ -22,5 +22,16 @@ class SimulationTests(unittest.TestCase):
     def test_full_churn(self):
         self.assertEqual(simulate(churn=1)['monthly_revenue'], 0)
 
+    def test_finite_inputs_that_overflow_intermediate_results(self):
+        scenarios = (
+            {'price': 1e308, 'price_change': 1e308},
+            {'customers': 10000, 'price': 1e308},
+            {'price': 1e308, 'costs': 1e308},
+            {'churn_sensitivity': 1e308, 'price_change': 1e308},
+        )
+        for scenario in scenarios:
+            with self.subTest(scenario=scenario), self.assertRaisesRegex(ValueError, 'numeric range'):
+                simulate(**scenario)
+
 if __name__ == '__main__':
     unittest.main()
