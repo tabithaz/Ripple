@@ -15,8 +15,11 @@ def simulate(customers=10000, price=20, price_change=0, churn=0.05, churn_sensit
     new_price = price * (1 + price_change)
     projected_churn = min(1.0, max(0.0, churn + price_change * churn_sensitivity))
     retained = round(customers * (1 - projected_churn))
-    revenue = round(retained * new_price, 2)
-    return {'retained_customers': retained, 'churn_rate': round(projected_churn, 4), 'monthly_revenue': revenue, 'monthly_profit': round(revenue - costs, 2), 'assumptions': {'churn_sensitivity': churn_sensitivity, 'model': 'illustrative linear sensitivity; not a forecast'}}
+    revenue = retained * new_price
+    profit = revenue - costs
+    if not all(math.isfinite(value) for value in (new_price, projected_churn, revenue, profit)):
+        raise ValueError('scenario results exceed supported numeric range')
+    return {'retained_customers': retained, 'churn_rate': round(projected_churn, 4), 'monthly_revenue': round(revenue, 2), 'monthly_profit': round(profit, 2), 'assumptions': {'churn_sensitivity': churn_sensitivity, 'model': 'illustrative linear sensitivity; not a forecast'}}
 
 
 class Handler(BaseHTTPRequestHandler):
