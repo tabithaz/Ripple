@@ -8,7 +8,13 @@ from pathlib import Path
 def simulate(customers=10000, price=20, price_change=0, churn=0.05, churn_sensitivity=0.4, costs=80000):
     """Estimate one-month revenue and profit with transparent assumptions."""
     values = (customers, price, price_change, churn, churn_sensitivity, costs)
-    if any(isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) for value in values):
+    if any(isinstance(value, bool) or not isinstance(value, (int, float)) for value in values):
+        raise ValueError('scenario parameters must be finite numbers')
+    try:
+        finite_inputs = all(math.isfinite(value) for value in values)
+    except OverflowError:
+        finite_inputs = False
+    if not finite_inputs:
         raise ValueError('scenario parameters must be finite numbers')
     if not isinstance(customers, int) or customers < 0 or price < 0 or costs < 0 or not 0 <= churn <= 1 or price_change <= -1 or churn_sensitivity < 0:
         raise ValueError('invalid scenario parameters')
