@@ -19,6 +19,10 @@ class SimulationTests(unittest.TestCase):
         for value in (1.5, True, '100'):
             with self.subTest(value=value), self.assertRaises(ValueError):
                 simulate(customers=value)
+    def test_extremely_large_customer_count_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, 'finite numbers'):
+            simulate(customers=10 ** 1000)
+
     def test_full_churn(self):
         self.assertEqual(simulate(churn=1)['monthly_revenue'], 0)
 
